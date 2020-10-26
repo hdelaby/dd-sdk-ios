@@ -116,17 +116,42 @@ internal class RUMResourceScope: RUMScope {
                 statusCode: command.httpStatusCode?.toInt64,
                 duration: resourceDuration.toInt64Nanoseconds,
                 size: size ?? 0,
-                redirect: nil,
-                dns: resourceMetrics?.dns.flatMap { dns in
-                    RUMDNS(
-                        duration: dns.duration.toInt64Nanoseconds,
-                        start: dns.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                redirect: resourceMetrics?.redirection.flatMap { metric in
+                    RUMRedirect(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
                     )
                 },
-                connect: nil,
-                ssl: nil,
-                firstByte: nil,
-                download: nil
+                dns: resourceMetrics?.dns.flatMap { metric in
+                    RUMDNS(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                    )
+                },
+                connect: resourceMetrics?.connect.flatMap { metric in
+                    RUMConnect(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                    )
+                },
+                ssl: resourceMetrics?.ssl.flatMap { metric in
+                    RUMSSL(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                    )
+                },
+                firstByte: resourceMetrics?.firstByte.flatMap { metric in
+                    RUMFirstByte(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                    )
+                },
+                download: resourceMetrics?.download.flatMap { metric in
+                    RUMDownload(
+                        duration: metric.duration.toInt64Nanoseconds,
+                        start: metric.start.timeIntervalSince(resourceStartTime).toInt64Nanoseconds
+                    )
+                }
             ),
             action: context.activeUserActionID.flatMap { rumUUID in
                 .init(id: rumUUID.toRUMDataFormat)
